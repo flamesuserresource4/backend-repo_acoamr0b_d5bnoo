@@ -12,9 +12,9 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Literal
 
-# Example schemas (replace with your own):
+# Example schemas (you can keep these for reference):
 
 class User(BaseModel):
     """
@@ -38,8 +38,40 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# App schemas
+
+class Listing(BaseModel):
+    """
+    Marketplace listings for cards
+    Collection name: "listing"
+    """
+    title: str = Field(..., description="Card title, e.g., 1999 Charizard Holo or 2019 Prizm Zion RC")
+    game: Literal["pokemon", "sports"] = Field(..., description="Card category")
+    set_name: Optional[str] = Field(None, description="Set/Brand, e.g., Base Set, Prizm, Topps")
+    year: Optional[int] = Field(None, description="Year of release")
+    card_number: Optional[str] = Field(None, description="Card number in the set")
+    condition: Optional[str] = Field(None, description="Raw condition, e.g., NM, LP, HP")
+    grade: Optional[str] = Field(None, description="Graded label, e.g., PSA 10, BGS 9.5")
+    image_url: Optional[str] = Field(None, description="Image URL")
+    price: Optional[float] = Field(None, ge=0, description="Asking price if selling")
+    for_trade: bool = Field(True, description="Available for trade")
+    owner_name: Optional[str] = Field(None, description="Seller/Trader name")
+    contact: Optional[str] = Field(None, description="Contact info, e.g., email or handle")
+    notes: Optional[str] = Field(None, description="Extra details")
+
+class Offer(BaseModel):
+    """
+    Trade or purchase offers on listings
+    Collection name: "offer"
+    """
+    listing_id: str = Field(..., description="Target listing _id as string")
+    offer_type: Literal["trade", "buy"] = Field(..., description="Type of offer")
+    message: Optional[str] = Field(None, description="Message to owner")
+    offered_value: Optional[float] = Field(None, ge=0, description="Dollar offer for buy or trade valuation")
+    offered_card: Optional[str] = Field(None, description="If trade, describe your card(s)")
+    buyer_name: Optional[str] = Field(None, description="Offeror name")
+    contact: Optional[str] = Field(None, description="Contact info")
+    status: Literal["pending", "accepted", "declined"] = Field("pending", description="Offer status")
 
 # Note: The Flames database viewer will automatically:
 # 1. Read these schemas from GET /schema endpoint
